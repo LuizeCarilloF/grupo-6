@@ -1,0 +1,87 @@
+# 🌐 Conectar Terraform com AWS + Transferir chave privada para EC2 pública
+
+Este guia ensina como configurar o acesso à AWS e enviar sua chave privada (`.pem`) da sua máquina local para uma EC2 pública, para que você possa acessar uma EC2 privada por dentro dela.
+
+---
+
+## 1. ✅ CONFIGURAR CREDENCIAIS AWS TEMPORÁRIAS
+
+Você recebeu suas credenciais temporárias (access key, secret key e session token) no seu Cloud Lab.
+
+### 🔧 Edite o arquivo de credenciais:
+Abra o terminal e digite:
+
+```bash
+nano ~/.aws/credentials
+```
+
+### 📝 Cole esse modelo com suas credenciais atualizadas:
+
+```
+[default]
+aws_access_key_id=SEU_ID
+aws_secret_access_key=SUA_SECRET
+aws_session_token=SEU_SESSION_TOKEN
+```
+
+> ⚠️ Substitua os valores acima pelas informações fornecidas no lab.
+
+### 💾 Para salvar:
+- Pressione `Ctrl + O` (depois Enter)
+- Pressione `Ctrl + X` para sair
+
+---
+
+## 2. 🔐 AJUSTAR PERMISSÕES DA CHAVE `.pem` NA SUA MÁQUINA LOCAL
+
+Antes de usar a chave `.pem`, ela precisa ter permissão restrita:
+
+```bash
+chmod 400 key-publica-g6.pem
+chmod 400 key-privada-g6.pem
+```
+
+---
+
+## 3. 🚀 TRANSFERIR CHAVE PRIVADA PARA EC2 PÚBLICA
+
+Use o comando abaixo para copiar `key-privada-g6.pem` para sua EC2 pública:
+
+```bash
+scp -i key-publica-g6.pem key-privada-g6.pem ubuntu@<IP_PUBLICO_DA_EC2_PUBLICA>:/home/ubuntu/
+```
+
+> Exemplo real:
+```bash
+scp -i key-publica-g6.pem key-privada-g6.pem ubuntu@3.84.176.217:/home/ubuntu/
+```
+
+---
+
+## 4. 🔑 ACESSAR EC2 PÚBLICA
+
+```bash
+ssh -i key-publica-g6.pem ubuntu@3.84.176.217
+```
+
+---
+
+## 5. ✅ DENTRO DA EC2 PÚBLICA: AJUSTE A PERMISSÃO DA CHAVE RECEBIDA
+
+```bash
+chmod 400 key-privada-g6.pem
+```
+
+---
+
+## 6. 🔐 CONECTAR NA EC2 PRIVADA A PARTIR DA PÚBLICA
+
+```bash
+ssh -i key-privada-g6.pem ubuntu@<IP_PRIVADO_DA_EC2_PRIVADA>
+```
+
+Substitua `<IP_PRIVADO_DA_EC2_PRIVADA>` pelo IP privado real da sua instância privada.
+
+---
+
+Tudo pronto! Agora você pode usar sua EC2 pública como ponto de acesso (bastion) para gerenciar sua EC2 privada com segurança.
